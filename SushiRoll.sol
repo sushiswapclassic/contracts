@@ -140,7 +140,7 @@ pragma solidity ^0.6.12;
 
 
 
-// SushiRoll contract can be used to roll over a SLP pair to another
+// SushiRoll contract can be used to roll over a SLP token to another
 // using the permit functionality, so only 1 tx is needed
 // e.g. from ETH/USDC LP tokens to ETH/USDT LP tokens
 contract SushiRoll {
@@ -149,12 +149,12 @@ contract SushiRoll {
     );
 
     function convertWETHPair(
-        address fromLP,
-        address toLP,
+        address fromSLP,
+        address toSLP,
         uint256 value
     ) public {
-        IUniswapV2Pair fromPair = IUniswapV2Pair(fromLP);
-        IUniswapV2Pair toPair = IUniswapV2Pair(toLP);
+        IUniswapV2Pair fromPair = IUniswapV2Pair(fromSLP);
+        IUniswapV2Pair toPair = IUniswapV2Pair(toSLP);
 
         address weth = router.WETH();
 
@@ -176,10 +176,10 @@ contract SushiRoll {
             : toPair.token1();
 
         // Transfer
-        IUniswapV2ERC20(fromLP).transferFrom(msg.sender, address(this), value);
+        IUniswapV2ERC20(fromSLP).transferFrom(msg.sender, address(this), value);
 
         // Remove liquidity
-        IUniswapV2ERC20(fromLP).approve(address(router), value);
+        IUniswapV2ERC20(fromSLP).approve(address(router), value);
         router.removeLiquidity(
             fromPair.token0(),
             fromPair.token1(),
@@ -229,9 +229,9 @@ contract SushiRoll {
         );
     }
 
-    function convertWETHPairWithpermit(
-        address fromLP,
-        address toLP,
+    function convertWETHPairWithPermit(
+        address fromSLP,
+        address toSLP,
         uint256 value,
         uint256 deadline,
         uint8 v,
@@ -239,7 +239,7 @@ contract SushiRoll {
         bytes32 s
     ) public {
         // Permit
-        IUniswapV2ERC20(fromLP).permit(
+        IUniswapV2ERC20(fromSLP).permit(
             msg.sender,
             address(this),
             value,
@@ -249,6 +249,6 @@ contract SushiRoll {
             s
         );
 
-        convertWETHPair(fromLP, toLP, value);
+        convertWETHPair(fromSLP, toSLP, value);
     }
 }
